@@ -1,0 +1,140 @@
+TSP - 535
+
+With population_size = 100, iterations = 100
+mutation_rate, death_rate = best_path
+0.01,           0.70    =   139316
+0.01,           0.80    =   137783
+0.02,           0.80    =   133543
+0.05,           0.80    =   131229
+0.05,           0.90    =   131179
+0.06,           0.90    =   129467
+0.07,           0.90    =   127789
+0.10,           0.90    =   123323 *
+
+0.10, 0.90 with population 200 and 200 iterations gives a result of 109044.
+This still isn't good enough so I'm going to alter the algorithm.
+Currently, the breeding is completely random. Change it now so that the best members are more likely to breed.
+Implement 'tournament selection'.
+Select a fraction of the population; let the fittest individual be the winner of the tournament with probability p (if
+not, the second fittest is selected with probability p*(1-p), then p*(1-p)^2 etc.; the winner of the tournament goes on
+to breed.
+Moving forward with the parameters 0.10, 0.90 from before, we experiment with parameters for the tournament selection.
+
+tournament_size, p  =   best_path
+0.5,            0.60=   123840
+0.5,            0.75=   124305
+0.5,            0.80=   121149 *
+0.5,            0.90=   125505
+0.2,            0.80=   125672
+0.7,            0.80=   124984
+
+Not much difference here, so I will try changing the other parameters again.
+
+mutation_rate, death_rate, tournament_size, p = best_path
+0.20, 0.80, 0.5, 0.80 = 122064
+0.20, 0.70, 0.5, 0.80 = 120518
+0.20, 0.50, 0.5, 0.80 = 123542
+0.10, 0.70, 0.5, 0.80 = 127395
+0.20, 0.70, 0.5, 0.80 = 120518
+0.40, 0.70, 0.5, 0.80 = 117833 * (best = 80138 with 200pop and 1000it)
+Got 72000 with 300pop and 2400it which took 30mins.
+
+Managed to get a slight increase. When run with 200 population and iterations, we now get 102104
+With population 200 and iterations 400 we can get as low as 90164. Can we do better?
+
+Currently, the worst x% of each population are killed off, and the left are rest to breed.
+Instead, we can try replacing the entire population with the offspring. This means that worse members of the population
+now have a chance to breed as well, but at the cost of potentially losing the best path in a given generation.
+
+mutation_rate, tournament_size, p = best_path
+0.40, 0.5, 0.80 = 163164
+0.40, 0.5, 0.60 = 163145
+0.40, 0.8, 0.60 = 163491
+0.40, 0.2, 0.60 = 162674
+0.20, 0.2, 0.60 = 162450
+
+This has made things much worse. Go back to the old implementation.
+
+Currently, when breeding a new member for the next population, I produce two 'siblings'. I will now try selecting only
+the most fit of these siblings and discarding the other.
+0.20, 0.70, 0.5, 0.80 = 134822
+0.40, 0.70, 0.5, 0.80 = 129635
+0.50, 0.70, 0.5, 0.80 = 129301
+0.50, 0.80, 0.5, 0.80 = 127609
+0.50, 0.60, 0.5, 0.80 = 131736
+0.50, 0.90, 0.5, 0.80 = 127363
+0.50, 0.90, 0.4, 0.80 = 128609
+0.50, 0.90, 0.6, 0.80 = 125469
+0.50, 0.90, 0.6, 0.90 = 125478
+0.50, 0.90, 0.6, 0.70 = 125795
+I'm unable to get results as good as previously attained by tweaking parameters.
+Go back to old model.
+Will have another tweak of the parameters.
+
+0.40, 0.90, 0.50, 0.80 = 117835
+0.40, 0.95, 0.50, 0.80 = 117457
+0.40, 0.98, 0.50, 0.80 = 117388
+0.40, 0.98, 0.50, 0.80 = 117388
+0.30, 0.98, 0.50, 0.80 = 120653
+0.50, 0.98, 0.50, 0.80 = 115573
+0.50, 0.98, 0.50, 0.70 = 117094
+0.50, 0.98, 0.50, 0.85 = 114680 **
+0.50, 0.98, 0.50, 0.90 = 117079
+0.50, 0.98, 0.45, 0.85 = 117532
+0.50, 0.98, 0.55, 0.85 = 118658
+0.50, 0.99, 0.50, 0.85 = 115006
+
+Going to try tweaking the mutation method to make it have more effect - should help prevent the GA converging too early.
+With 200 iterations and population we currently have
+0.50, 0.98, 0.50, 0.85 = 101012 **
+Change the mutation method from making one mutation if the probability allows it, to having a smaller probability parameter
+and applying it to every city.
+Turns out, this is much worse.
+I've changed the mutation method instead so that it considers mutation on each child separately, so I expect that I will
+have to increase the mutation rate now.
+0.50, 0.98, 0.70, 0.85 = 117273
+0.60, 0.98, 0.70, 0.85 = 116026
+0.70, 0.98, 0.70, 0.85 = 114460
+0.75, 0.98, 0.70, 0.85 = 114492
+0.80, 0.98, 0.70, 0.85 = 114099
+0.80, 0.98, 0.65, 0.85 = 113329
+0.80, 0.98, 0.62, 0.85 = 114018
+0.80, 0.98, 0.60, 0.85 = 112527 ** 115947
+0.80, 0.98, 0.58, 0.85 = 113623
+0.80, 0.98, 0.50, 0.85 = 115455
+
+0.80, 0.98, 0.60, 0.88 = 117356
+0.80, 0.98, 0.60, 0.85 = 112527
+0.80, 0.98, 0.60, 0.83 = 115299
+0.80, 0.98, 0.60, 0.82 = 112896
+0.80, 0.98, 0.60, 0.80 = 112449 *
+0.80, 0.98, 0.60, 0.75 = 116134
+
+I'm struggling to get much better than this, so I'll run it with a population of 300 and 30000 iterations to finish
+overnight.
+
+0.80, 0.98, 0.60, 0.80 = 70140
+
+
+Instead of just culling the bottom x% of a population, now I will remove the less fit members in a stochastic manner.
+To do this, each member has a probability of being culled equal to the square root of its normalised ranking.
+With this method, the diversity should remain higher, allowing better path lengths as local minima can be avoided.
+However, this takes a while to be demonstrated, so I will test with a larger population and more iterations now.
+With a 500 population and iterations, we get the following results.
+Mutation rate, tournament size, p = best path.
+0.8, 0.6, 0.8 = 83442
+0.8, 0.6, 0.7 = 83327
+0.7, 0.6, 0.7 = 81306
+Before I optimise this too much, I will change the power of the ranking.
+0.6 = 84431
+0.5 = 81306
+0.4 = 82745
+
+When I altered my SA successor function I got significantly better results, and I believe I can incorporate this into
+the mutation for GA. Once I've selected two cities, instead of just swapping them, I will reverse the order of the
+sub-path that they contain. As predicted, this did indeed improve the algorithm!
+When running with 500 population and iterations, I got a best path length of 64025. This ran for the amount of time it took me
+to make a cup of tea, and it's better than when I ran it overnight with my previous algorithm. Just out of interest, I'll
+run it exactly the same, with with half the population and twice the iterations, to see which parameter has a greater effect
+on the best path when running for approximately equal times. This returned a best length of 61063, so I will prioritise
+generations to population size from now on.

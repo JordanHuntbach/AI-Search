@@ -1,0 +1,48 @@
+Currently, swapping two cities at random.
+Prob_of_acceptance = math.exp((current_length - new_length) / temp)
+(start temp, cooling rate)
+1000,  0.0010 =  99603
+5000,  0.0010 = 100148
+10000, 0.0010 =  99704
+10000, 0.0100 = 130948
+10000, 0.0010 =  99704
+10000, 0.0005 =  92502
+10000, 0.0001 =  77764
+1000,  0.0001 =  79086
+
+Currently only evaluating one new path at each temperature. Instead, have a parameter tries. We will keep trying
+different paths at each temperature until we either find a successor, or reach this number of tries. Trying with the
+optimum parameters from before (10000, 0.0001), we will try some different 'tries' parameters.
+
+1   = 77764
+5   = 68487
+10  = 66111
+20  = 63252
+100 = 60511
+200 = 59370
+
+This significantly increase the runtime, but is clearly leading to better results.
+Now, instead of trying 200 random swaps at each temperature, the algorithm will go through all of the possible swaps
+until a successor is found.
+It's immediately clear that this leads to worse results, potentially because the same cities (those with lower indices)
+are repeatedly being swapped. Instead, I will try generating all the possible swaps, shuffling them, then going through
+that list.
+This is MUCH slower. To compensate for this, I will change the cooling schedule to a linear drop off, instead of
+exponential decay, i.e. temp -= cooling_rate instead of temp *= cooling rate
+Again, this is still not as good. Got a result of 147287 on the first try with start temp 10000 and linear cooling rate
+of 5. Not sure if this is because of the different implementation, or the different cooling schedule, so I'm going to
+let it run on the old schedule to compare more accurately.
+After approximately 5 hours of run time, this method only achieved a path length of 62160. After that waste of time, I'm
+going back to the old method. To improve the run time I will add a catch where if a new state hasn't been selected in 10000
+tries, the program will terminate. This will allow me to implement more computationally complex algorithms without having to
+wait as long to check the results. It turns out that a value of 10000 doesn't terminate the program very quickly at all.
+Try 500 instead. This did terminate the algorithm early, but gave a result of 67014. Clearly the algorithm was terminated
+and the decrease in running time wasn't even that significant, especially as the added computation time required to check
+the termination criteria thousands of times negates the benefit of doing this. Will cut it out again now.
+
+200 tries every iteration was marginally better than 100, but at too great a cost in running time. Take it back to 100
+tries.
+
+I will now try a different neighbor function. Instead of picking two random cities, try picking two consecutive cities.
+This was not as successful. Instead, try picking two random cities, and reversing the order of all cities in between.
+It drastically improves the algorithm! I'm getting much better results now.
